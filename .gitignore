@@ -205,3 +205,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# --- Project Specific Exports ---
+# Ignore the folder where we save our optimization results
+data_exports/
+# Ignore any temporary CSV or Excel files created during tests
+*.csv
+*.xlsx
+# But let's KEEP our template file if you have one
+!template.csv
