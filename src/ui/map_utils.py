@@ -1,5 +1,4 @@
 import math
-import folium
 import requests
 import plotly.graph_objects as go
 import streamlit as st
@@ -8,13 +7,6 @@ import streamlit as st
 CENTER_LAT = 40.990  # Kadikoy, Istanbul (Latitude)
 CENTER_LON = 29.020  # Kadikoy, Istanbul (Longitude)
 
-def km_to_latlon(x_km, y_km, center_lat=CENTER_LAT, center_lon=CENTER_LON):
-    """
-    Converts internal abstract Grid (X, Y in km) to Real World GPS Coordinates (Lat, Lon).
-    """
-    lat = center_lat + (y_km / 111.0)
-    lon = center_lon + (x_km / (111.0 * math.cos(math.radians(center_lat))))
-    return lat, lon
 
 def get_osrm_route(coords):
     """
@@ -40,86 +32,6 @@ def get_osrm_route(coords):
     except Exception as e:
         st.warning(f"OSRM Bağlantı Hatası: {e}. Düz çizgi çiziliyor.")
         return coords
-
-def create_folium_map(env, solution, show_radius=False):
-    """Generates the Real World map using Folium and OSRM for Truck routes."""
-    max_x = max([n.x for n in env.nodes]) if env.nodes else 10
-    max_y = max([n.y for n in env.nodes]) if env.nodes else 10
-    mid_lat, mid_lon = km_to_latlon(max_x / 2, max_y / 2)
-    
-    m = folium.Map(location=[mid_lat, mid_lon], zoom_start=13, tiles="OpenStreetMap")
-    node_coords = {}
-    
-    # 1. Plot Customers
-    for node in env.nodes[1:]:
-        lat, lon = km_to_latlon(node.x, node.y)
-        node_coords[node.id] = (lat, lon)
-        color = 'blue' if node.is_drone_eligible else 'purple'
-        folium.CircleMarker(
-            location=[lat, lon], radius=6,
-            popup=f"Customer {node.id}<br>Drone Eligible: {node.is_drone_eligible}",
-            color=color, fill=True, fill_opacity=0.9
-        ).add_to(m)
-        
-    # 2. Plot Depot
-    if env.nodes:
-        depot = env.nodes[0]
-        lat, lon = km_to_latlon(depot.x, depot.y)
-        node_coords[depot.id] = (lat, lon)
-        folium.Marker(
-            location=[lat, lon], popup="Depot",
-            icon=folium.Icon(color="red", icon="home")
-        ).add_to(m)
-
-    # DİKKAT: ESKİ DEPO ÇEMBERİNİ BURADAN SİLDİK!
-
-    # 3. Plot Truck Route (REAL STREETS using OSRM)
-    if solution and solution.truck_route:
-        truck_waypoints = [node_coords[n_id] for n_id in solution.truck_route if n_id in node_coords]
-        
-        if len(truck_waypoints) > 1:
-            real_street_path = get_osrm_route(truck_waypoints)
-            folium.PolyLine(
-                real_street_path, 
-                color="#2c3e50", 
-                weight=5, 
-                opacity=0.9, 
-                tooltip="Truck Route (Real Streets)"
-            ).add_to(m)
-
-    # 4. Plot Drone Deliveries & YENİ ÇEMBERLER
-    if solution and solution.drone_deliveries:
-        # Menzili (yarıçapı) metre cinsinden 1 kere hesaplıyoruz
-        max_flight_radius_meters = ((env.drone_speed / 60.0) * env.drone_endurance / 2.0) * 1000
-        
-        for launch, target, rendezvous in solution.drone_deliveries:
-            drone_path = [node_coords[launch], node_coords[target], node_coords[rendezvous]]
-            
-            # Uçuş çizgisi
-            folium.PolyLine(
-                drone_path, 
-                color="#e74c3c", 
-                weight=3, 
-                opacity=0.9, 
-                dash_array="8, 8", 
-                tooltip="Drone Flight (Air Path)"
-            ).add_to(m)
-            
-            # YENİ VE DOĞRU: Çemberi uçağın kalktığı (Launch) noktaya çiz!
-            if show_radius:
-                launch_lat, launch_lon = node_coords[launch]
-                folium.Circle(
-                    location=[launch_lat, launch_lon],
-                    radius=max_flight_radius_meters,
-                    color="#e74c3c",
-                    fill=True,
-                    fill_color="#e74c3c",
-                    fill_opacity=0.08,  # Üst üste binince çok koyu olmasın diye şeffaf tuttuk
-                    tooltip=f"Kalkış {launch} için Operasyon Menzili",
-                    weight=1
-                ).add_to(m)
-            
-    return m
 
 def create_plotly_map(env, solution):
     """Generates the Abstract Grid map using Plotly."""
