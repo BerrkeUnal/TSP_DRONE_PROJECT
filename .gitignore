@@ -214,4 +214,4 @@ data_exports/
 *.csv
 *.xlsx
 # But let's KEEP our template file if you have one
-!template.csv
+!template.csv.DS_Store
