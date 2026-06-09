@@ -25,12 +25,16 @@ def run_instance(instance_file: str, max_iterations: int = 100, k_max: int = 5) 
     instance_path = Path("data") / "singlecenter" / instance_file
 
     env = TSPEnvironment(
-        C1=25.0,
-        C2=1.0,
-        alpha=10.0,
-        beta=10.0,
-    )
+    C1=25.0,
+    C2=1.0,
+    alpha=10.0,
+    beta=10.0,
+    drone_endurance=120.0,
+)
     env.load_from_txt(instance_path)
+    # Override dataset defaults for drone-assisted benchmark scenario
+    env.drone_speed = 2.0
+    env.drone_endurance = 10000.0
 
     solver = GRASPSolver(
         environment=env,

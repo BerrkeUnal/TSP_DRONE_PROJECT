@@ -64,10 +64,11 @@ def simulated_annealing(
 
 def main():
     env = TSPEnvironment(
-        C1=25.0,
-        C2=1.0,
-        alpha=10.0,
-        beta=10.0,
+    C1=25.0,
+    C2=1.0,
+    alpha=10.0,
+    beta=10.0,
+    drone_endurance=120.0,
     )
 
     env.load_from_txt(Path("data") / "singlecenter" / INSTANCE)
