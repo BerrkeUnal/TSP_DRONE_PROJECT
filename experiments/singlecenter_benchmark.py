@@ -12,12 +12,6 @@ SELECTED_INSTANCES = [
     "singlecenter-51-n10.txt",
     "singlecenter-52-n10.txt",
     "singlecenter-53-n10.txt",
-    "singlecenter-71-n50.txt",
-    "singlecenter-72-n50.txt",
-    "singlecenter-73-n50.txt",
-    "singlecenter-91-n100.txt",
-    "singlecenter-92-n100.txt",
-    "singlecenter-93-n100.txt",
 ]
 
 
