@@ -51,7 +51,7 @@ def create_plotly_map(env, solution):
         depot = env.nodes[0]
         fig.add_trace(go.Scatter(
             x=[depot.x], y=[depot.y], mode='markers',
-            marker=dict(size=16, color='#e74c3c', symbol='square'),
+            marker=dict(size=16, color='orange', symbol='square'),
             text=["Depot (0,0)"], hoverinfo='text', name='Depot'
         ))
 
