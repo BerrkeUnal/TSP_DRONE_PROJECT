@@ -51,8 +51,10 @@ def main():
                 env.C1 = 25.0     
                 env.C2 = 1.0      
 
-                # DEMO NOTE: Adjusted to 50 iterations for fast live demonstration.
-                # Change to 2000 for final production benchmark runs as per the paper.
+                env.drone_speed = 2.0 
+                env.drone_endurance = 10000.0
+
+                
                 solver = GRASPSolver(environment=env, max_iterations=50)
                 best_sol = solver.solve()
                 base_sol = solver.baseline_solution 
@@ -126,6 +128,17 @@ def main():
                 with map_col2:
                     st.subheader(f"Optimized Truck-Drone (TSP-D) - {res['Customers']} Customers")
                     st.plotly_chart(create_plotly_map(res['env'], res['best_sol']), use_container_width=True)
+
+                # --- YENİ EKLENEN KARŞILAŞTIRMA GRAFİĞİ BURADA ---
+                st.divider()
+                st.markdown("### 📈 Algorithm Comparison Chart")
+                
+                chart_df = pd.DataFrame({
+                    "Total Cost ($)": [res['base_sol'].total_cost, res['best_sol'].total_cost],
+                }, index=["Traditional TSP (Baseline)", "GRASP TSP-D (Your Algorithm)"])
+                
+                st.bar_chart(chart_df, color="#2ecc71")
+                st.info(f"💡 For the {res['Dataset']} dataset, our GRASP algorithm successfully reduced the total cost by {res['Cost Savings']} compared to the traditional baseline.")
 
 if __name__ == "__main__":
     main()
